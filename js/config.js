@@ -3,7 +3,7 @@
    ============================================================ */
 
 // ── Ganti URL ini setelah deploy GAS ──────────────────────
-const GAS_URL = 'https://script.google.com/macros/s/XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX/exec';
+const GAS_URL = 'https://script.google.com/macros/s/AKfycbxxpT8bvH7eXO7jbwIRBcg8Pfu4DM4ZdRbE565IbSzr8_LhWCGuUIf71pRQvfoktECl/exec';
 
 // ============================================================
 // API: POST
