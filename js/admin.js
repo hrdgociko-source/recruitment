@@ -1,18 +1,157 @@
 /* ============================================================
-   admin.js — Logic Dashboard Admin
+   admin.js — Logic Dashboard Admin + Auth
    ============================================================ */
 
-let allPelamar     = [];
-let currentFilter  = 'Semua';
-let currentSearch  = '';
+let allPelamar    = [];
+let currentFilter = 'Semua';
+let currentSearch = '';
+
+// ── Session Key di sessionStorage ─────────────────────────
+const SESSION_KEY = 'gociko_admin_auth';
 
 // ============================================================
 // INIT
 // ============================================================
 document.addEventListener('DOMContentLoaded', () => {
+  checkSession();
+});
+
+// ============================================================
+// CEK SESSION — Sudah login atau belum
+// ============================================================
+function checkSession() {
+  const isAuth = sessionStorage.getItem(SESSION_KEY);
+
+  if (isAuth === 'true') {
+    showAdminPage();
+  } else {
+    showLoginPage();
+  }
+}
+
+// ============================================================
+// SHOW LOGIN / ADMIN PAGE
+// ============================================================
+function showLoginPage() {
+  document.getElementById('loginPage').classList.remove('hidden');
+  document.getElementById('adminPage').classList.add('hidden');
+}
+
+function showAdminPage() {
+  document.getElementById('loginPage').classList.add('hidden');
+  document.getElementById('adminPage').classList.remove('hidden');
   loadStats();
   loadPelamar();
-});
+}
+
+// ============================================================
+// HANDLE LOGIN
+// ============================================================
+async function handleLogin(e) {
+  e.preventDefault();
+
+  const password = document.getElementById('passwordInput').value.trim();
+  const btn      = document.getElementById('loginBtn');
+  const errorEl  = document.getElementById('loginError');
+  const errorMsg = document.getElementById('loginErrorMsg');
+
+  if (!password) {
+    showLoginError('Password tidak boleh kosong!');
+    return;
+  }
+
+  // Loading
+  btn.classList.add('btn-loading');
+  btn.disabled = true;
+  errorEl.classList.remove('show');
+
+  try {
+    const result = await apiGet({
+      action  : 'checkPassword',
+      password: password
+    });
+
+    if (result.status === 'success' && result.valid === true) {
+      // Simpan session
+      sessionStorage.setItem(SESSION_KEY, 'true');
+      showToast('Login berhasil! Selamat datang 👋', 'success');
+      showAdminPage();
+
+    } else if (result.status === 'success' && result.valid === false) {
+      showLoginError('Password salah! Coba lagi.');
+      shakeLoginBox();
+
+    } else {
+      showLoginError(result.message || 'Terjadi kesalahan. Coba lagi.');
+    }
+
+  } catch (error) {
+    showLoginError('Gagal terhubung ke server. Cek koneksi kamu.');
+  }
+
+  btn.classList.remove('btn-loading');
+  btn.disabled = false;
+}
+
+// ============================================================
+// SHOW LOGIN ERROR
+// ============================================================
+function showLoginError(msg) {
+  const errorEl  = document.getElementById('loginError');
+  const errorMsg = document.getElementById('loginErrorMsg');
+  errorMsg.textContent = msg;
+  errorEl.classList.add('show');
+
+  // Auto hide setelah 4 detik
+  setTimeout(() => errorEl.classList.remove('show'), 4000);
+}
+
+// ============================================================
+// SHAKE ANIMATION — Login box goyang kalau salah
+// ============================================================
+function shakeLoginBox() {
+  const box = document.querySelector('.login-box');
+  box.style.animation = 'none';
+  box.style.transition = 'transform 0.1s ease';
+
+  const times = [0, 10, -10, 8, -8, 5, -5, 0];
+  let i = 0;
+  const interval = setInterval(() => {
+    box.style.transform = `translateX(${times[i]}px)`;
+    i++;
+    if (i >= times.length) {
+      clearInterval(interval);
+      box.style.transform = '';
+    }
+  }, 60);
+}
+
+// ============================================================
+// TOGGLE PASSWORD VISIBILITY
+// ============================================================
+function togglePassword() {
+  const input = document.getElementById('passwordInput');
+  const btn   = document.getElementById('togglePwBtn');
+
+  if (input.type === 'password') {
+    input.type = 'text';
+    btn.textContent = '🙈';
+  } else {
+    input.type = 'password';
+    btn.textContent = '👁️';
+  }
+}
+
+// ============================================================
+// HANDLE LOGOUT
+// ============================================================
+function handleLogout() {
+  sessionStorage.removeItem(SESSION_KEY);
+  document.getElementById('passwordInput').value = '';
+  document.getElementById('loginError').classList.remove('show');
+  showLoginPage();
+  showToast('Berhasil keluar dari sesi admin', 'warning');
+}
 
 // ============================================================
 // LOAD STATISTIK
@@ -25,7 +164,6 @@ async function loadStats() {
     setText('statBaru',     s.baru);
     setText('statDiproses', s.diproses);
     setText('statDiterima', s.diterima);
-    setText('statDitolak',  s.ditolak);
   }
 }
 
@@ -49,19 +187,16 @@ async function loadPelamar() {
 }
 
 // ============================================================
-// RENDER PELAMAR LIST
+// RENDER PELAMAR
 // ============================================================
 function renderPelamar() {
   const list = document.getElementById('pelamarList');
+  let data   = [...allPelamar];
 
-  let data = [...allPelamar];
-
-  // Filter status
   if (currentFilter !== 'Semua') {
     data = data.filter(p => p.statusLamaran === currentFilter);
   }
 
-  // Filter search
   if (currentSearch) {
     const kw = currentSearch.toLowerCase();
     data = data.filter(p =>
@@ -105,15 +240,19 @@ function renderPelamar() {
 }
 
 function renderLoading() {
-  document.getElementById('pelamarList').innerHTML = `
+  const list = document.getElementById('pelamarList');
+  if (list) list.innerHTML = `
     <div class="loading-state">
       <div class="spinner"></div>
-      <p style="color:var(--gray-400);font-size:13px;">Memuat data pelamar...</p>
+      <p style="color:var(--gray-400);font-size:13px;">
+        Memuat data pelamar...
+      </p>
     </div>`;
 }
 
 function renderError(msg) {
-  document.getElementById('pelamarList').innerHTML = `
+  const list = document.getElementById('pelamarList');
+  if (list) list.innerHTML = `
     <div class="empty-state">
       <div class="empty-icon">❌</div>
       <div class="empty-title">Gagal Memuat Data</div>
@@ -126,7 +265,8 @@ function renderError(msg) {
 // ============================================================
 function filterPelamar(status, el) {
   currentFilter = status;
-  document.querySelectorAll('.filter-tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.filter-tab')
+    .forEach(t => t.classList.remove('active'));
   el.classList.add('active');
   renderPelamar();
 }
@@ -153,14 +293,16 @@ async function openDetail(id) {
       <p style="color:var(--gray-400);font-size:13px;">Memuat detail...</p>
     </div>`;
 
-  // Fetch data paralel
   const [resPelamar, resInterview] = await Promise.all([
     apiGet({ action: 'getDetailPelamar', id }),
     apiGet({ action: 'getInterview', idPelamar: id })
   ]);
 
   if (resPelamar.status !== 'success') {
-    body.innerHTML = `<p style="color:var(--danger);padding:20px;">Gagal memuat data pelamar.</p>`;
+    body.innerHTML = `
+      <p style="color:var(--danger);padding:20px;text-align:center;">
+        ❌ Gagal memuat data pelamar.
+      </p>`;
     return;
   }
 
@@ -171,7 +313,6 @@ async function openDetail(id) {
 
   body.innerHTML = `
 
-    <!-- Header Pelamar -->
     <div class="pelamar-detail-header">
       <div class="pelamar-detail-id">${p.id}</div>
       <div class="pelamar-detail-name">${p.namaPanggilan}</div>
@@ -179,12 +320,11 @@ async function openDetail(id) {
       <div class="pelamar-detail-date">📅 Daftar: ${p.timestamp}</div>
     </div>
 
-    <!-- Tabs -->
     <div class="tab-header">
-      <button class="tab-btn active" onclick="switchTab('tabData', this)">
+      <button class="tab-btn active" onclick="switchTab('tabData',this)">
         📋 Data Diri
       </button>
-      <button class="tab-btn" onclick="switchTab('tabInterview', this)">
+      <button class="tab-btn" onclick="switchTab('tabInterview',this)">
         📝 Hasil Interview
       </button>
     </div>
@@ -194,42 +334,25 @@ async function openDetail(id) {
 
       <div class="info-section">
         <div class="info-section-title">Data Pribadi</div>
-        <div class="info-row">
-          <span class="info-label">Usia</span>
-          <span class="info-value">${p.usia} tahun</span>
-        </div>
+        ${infoRow('Usia',         p.usia + ' tahun')}
         <div class="info-row">
           <span class="info-label">No. WhatsApp</span>
           <span class="info-value">
-            <a href="https://wa.me/62${p.noWhatsapp.replace(/^0/, '')}"
+            <a href="https://wa.me/62${p.noWhatsapp.replace(/^0/,'')}"
                target="_blank"
                style="color:#25D366;font-weight:600;">
               📱 ${p.noWhatsapp}
             </a>
           </span>
         </div>
-        <div class="info-row">
-          <span class="info-label">Pendidikan</span>
-          <span class="info-value">${p.pendidikan}</span>
-        </div>
-        <div class="info-row">
-          <span class="info-label">Nama Sekolah</span>
-          <span class="info-value">${p.namaSekolah}</span>
-        </div>
-        <div class="info-row">
-          <span class="info-label">Status Nikah</span>
-          <span class="info-value">${p.statusPernikahan}</span>
-        </div>
-        <div class="info-row">
-          <span class="info-label">Alamat</span>
-          <span class="info-value">${p.alamat}</span>
-        </div>
-        <div class="info-row">
-          <span class="info-label">Luar Kota</span>
-          <span class="info-value">
-            ${p.bersediaLuarKota === 'Ya' ? '✅ Bersedia' : '❌ Tidak Bersedia'}
-          </span>
-        </div>
+        ${infoRow('Pendidikan',   p.pendidikan)}
+        ${infoRow('Nama Sekolah', p.namaSekolah)}
+        ${infoRow('Status Nikah', p.statusPernikahan)}
+        ${infoRow('Alamat',       p.alamat)}
+        ${infoRow('Luar Kota',
+          p.bersediaLuarKota === 'Ya'
+            ? '✅ Bersedia'
+            : '❌ Tidak Bersedia')}
       </div>
 
       <div class="info-section">
@@ -245,13 +368,18 @@ async function openDetail(id) {
           <div>
             <div class="foto-label">🪪 Foto KTP</div>
             ${p.linkKTP
-              ? `<a href="${p.linkKTP}" target="_blank" class="foto-link ktp">🪪 Lihat KTP</a>`
+              ? `<a href="${p.linkKTP}" target="_blank" class="foto-link ktp">
+                   🪪 Lihat KTP
+                 </a>`
               : `<div class="foto-kosong">Belum diupload</div>`}
           </div>
           <div>
             <div class="foto-label">🤳 Foto Selfie</div>
             ${p.linkSelfie
-              ? `<a href="${p.linkSelfie}" target="_blank" class="foto-link selfie">🤳 Lihat Selfie</a>`
+              ? `<a href="${p.linkSelfie}" target="_blank"
+                    class="foto-link selfie">
+                   🤳 Lihat Selfie
+                 </a>`
               : `<div class="foto-kosong">Belum diupload</div>`}
           </div>
         </div>
@@ -261,15 +389,15 @@ async function openDetail(id) {
         <div class="info-section-title">⚙️ Update Status</div>
         <div style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:16px;">
           <button class="btn btn-sm btn-info"
-                  onclick="updateStatus('${p.id}', 'Diproses')">
+                  onclick="updateStatus('${p.id}','Diproses')">
             🔄 Diproses
           </button>
           <button class="btn btn-sm btn-success"
-                  onclick="updateStatus('${p.id}', 'Diterima')">
+                  onclick="updateStatus('${p.id}','Diterima')">
             ✅ Diterima
           </button>
           <button class="btn btn-sm btn-danger"
-                  onclick="updateStatus('${p.id}', 'Ditolak')">
+                  onclick="updateStatus('${p.id}','Ditolak')">
             ❌ Ditolak
           </button>
         </div>
@@ -277,7 +405,8 @@ async function openDetail(id) {
           <label class="form-label">Catatan Admin</label>
           <textarea class="form-control" id="adminCatatan"
                     rows="3"
-                    placeholder="Tambahkan catatan...">${p.catatanAdmin || ''}</textarea>
+                    placeholder="Tambahkan catatan..."
+                    >${p.catatanAdmin || ''}</textarea>
         </div>
         <button class="btn btn-yellow btn-sm"
                 onclick="simpanCatatan('${p.id}')"
@@ -286,12 +415,14 @@ async function openDetail(id) {
         </button>
       </div>
 
-      <div style="margin-top:24px;padding-top:16px;border-top:2px solid var(--gray-200);">
+      <div style="margin-top:24px;padding-top:16px;
+                  border-top:2px solid var(--gray-200);">
         <button class="btn btn-primary"
                 onclick="bukaInterview('${p.id}','${p.namaPanggilan}','${p.statusPernikahan}')">
           📝 ${iv ? 'Edit Hasil Interview' : 'Mulai Interview'}
         </button>
       </div>
+
     </div>
 
     <!-- TAB HASIL INTERVIEW -->
@@ -321,7 +452,7 @@ function renderInterviewDetail(iv, p) {
       </div>`;
   }
 
-  const isLajangJanda = ['Lajang', 'Janda'].includes(p.statusPernikahan);
+  const isLajangJanda = ['Lajang','Janda'].includes(p.statusPernikahan);
   const isMenikah     = p.statusPernikahan === 'Menikah';
 
   return `
@@ -329,30 +460,32 @@ function renderInterviewDetail(iv, p) {
 
       <div class="info-section">
         <div class="info-section-title">🏪 Info Interview</div>
-        ${infoRow('Outlet',       iv.outlet)}
-        ${infoRow('Tanggal',      iv.tanggalInterview)}
-        ${infoRow('Interviewer',  iv.interviewer)}
+        ${infoRow('Outlet',      iv.outlet)}
+        ${infoRow('Tanggal',     iv.tanggalInterview)}
+        ${infoRow('Interviewer', iv.interviewer)}
       </div>
 
       ${isLajangJanda ? `
       <div class="info-section">
-        <div class="info-section-title">👨‍👩‍👧 Data Keluarga (${p.statusPernikahan})</div>
-        ${infoRow('Pekerjaan Ayah',       iv.pekerjaanAyah)}
-        ${infoRow('Pekerjaan Ibu',        iv.pekerjaanIbu)}
-        ${infoRow('Anak ke-',             iv.anakKe)}
-        ${infoRow('Ijin Ortu',            iv.ijinOrtu)}
-        ${infoRow('Rencana Kuliah/TKI',   iv.rencanaKuliah)}
-        ${infoRow('Rencana Nikah',        iv.rencaNikah)}
+        <div class="info-section-title">
+          👨‍👩‍👧 Data Keluarga (${p.statusPernikahan})
+        </div>
+        ${infoRow('Pekerjaan Ayah',     iv.pekerjaanAyah)}
+        ${infoRow('Pekerjaan Ibu',      iv.pekerjaanIbu)}
+        ${infoRow('Anak ke-',           iv.anakKe)}
+        ${infoRow('Ijin Ortu',          iv.ijinOrtu)}
+        ${infoRow('Rencana Kuliah/TKI', iv.rencanaKuliah)}
+        ${infoRow('Rencana Nikah',      iv.rencaNikah)}
       </div>` : ''}
 
       ${isMenikah ? `
       <div class="info-section">
         <div class="info-section-title">💍 Data Keluarga (Menikah)</div>
-        ${infoRow('Pekerjaan Suami',    iv.pekerjaanSuami)}
-        ${infoRow('Jumlah Anak',        iv.jumlahAnak)}
-        ${infoRow('Usia Anak Termuda',  iv.usiaAnakTermuda)}
-        ${infoRow('Rencana Kehamilan',  iv.rencanaKehamilan)}
-        ${infoRow('Ijin Suami',         iv.ijinSuami)}
+        ${infoRow('Pekerjaan Suami',   iv.pekerjaanSuami)}
+        ${infoRow('Jumlah Anak',       iv.jumlahAnak)}
+        ${infoRow('Usia Anak Termuda', iv.usiaAnakTermuda)}
+        ${infoRow('Rencana Kehamilan', iv.rencanaKehamilan)}
+        ${infoRow('Ijin Suami',        iv.ijinSuami)}
       </div>` : ''}
 
       <div class="info-section">
@@ -366,8 +499,7 @@ function renderInterviewDetail(iv, p) {
         ${[1,2,3].map(i => {
           const t = iv['pengalamanKerja' + i];
           const l = iv['lamaKerja' + i];
-          if (!t) return '';
-          return infoRow(i + '. ' + t, l || '-');
+          return t ? infoRow(i + '. ' + t, l || '-') : '';
         }).join('')}
         ${!iv.pengalamanKerja1
           ? '<p style="font-size:13px;color:var(--gray-400);">-</p>'
@@ -376,19 +508,19 @@ function renderInterviewDetail(iv, p) {
 
       <div class="info-section">
         <div class="info-section-title">🏥 Kesehatan & Lainnya</div>
-        ${infoRow('Keluhan Sakit',      iv.keluhanSakit)}
-        ${infoRow('Opname RS',          iv.opnameRS)}
-        ${infoRow('Plecit',             iv.plecit)}
-        ${infoRow('Pinjol',             iv.pinjol)}
+        ${infoRow('Keluhan Sakit', iv.keluhanSakit)}
+        ${infoRow('Opname RS',     iv.opnameRS)}
+        ${infoRow('Plecit',        iv.plecit)}
+        ${infoRow('Pinjol',        iv.pinjol)}
         ${infoRow('Melamar Tempat Lain',
           iv.melamarTempatLain === 'Ya'
-            ? 'Ya (' + (iv.namaTempatLain || '-') + ')'
+            ? `Ya (${iv.namaTempatLain || '-'})`
             : iv.melamarTempatLain)}
         ${infoRow('Ormas Agama',
           iv.ormasAgama === 'Ya'
-            ? 'Ya (' + (iv.namaOrmas || '-') + ')'
+            ? `Ya (${iv.namaOrmas || '-'})`
             : iv.ormasAgama)}
-        ${infoRow('Kajian Rutin',       iv.kajianRutin)}
+        ${infoRow('Kajian Rutin', iv.kajianRutin)}
       </div>
 
       <div class="info-section">
@@ -419,8 +551,10 @@ function infoRow(label, value) {
 // SWITCH TAB
 // ============================================================
 function switchTab(tabId, btn) {
-  document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
-  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.querySelectorAll('.tab-content')
+    .forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.tab-btn')
+    .forEach(b => b.classList.remove('active'));
   document.getElementById(tabId)?.classList.add('active');
   btn.classList.add('active');
 }
@@ -433,7 +567,7 @@ async function updateStatus(id, status) {
   const result  = await apiPost('updateStatusPelamar', { id, status, catatan });
 
   if (result.status === 'success') {
-    showToast(`Status berhasil diubah ke: ${status}`, 'success');
+    showToast(`Status diubah ke: ${status}`, 'success');
     loadStats();
     loadPelamar();
     closeModal();
@@ -449,8 +583,7 @@ async function simpanCatatan(id) {
   const catatan = document.getElementById('adminCatatan')?.value || '';
   const pelamar = allPelamar.find(p => p.id === id);
   const status  = pelamar?.statusLamaran || 'Baru';
-
-  const result = await apiPost('updateStatusPelamar', { id, status, catatan });
+  const result  = await apiPost('updateStatusPelamar', { id, status, catatan });
 
   if (result.status === 'success') {
     showToast('Catatan berhasil disimpan!', 'success');
@@ -463,8 +596,8 @@ async function simpanCatatan(id) {
 // BUKA INTERVIEW
 // ============================================================
 function bukaInterview(id, nama, statusNikah) {
-  sessionStorage.setItem('interviewId',         id);
-  sessionStorage.setItem('interviewNama',       nama);
+  sessionStorage.setItem('interviewId',          id);
+  sessionStorage.setItem('interviewNama',        nama);
   sessionStorage.setItem('interviewStatusNikah', statusNikah);
   window.location.href = `interview.html?id=${id}`;
 }
@@ -477,9 +610,9 @@ function closeModal() {
   document.body.style.overflow = '';
 }
 
-// Tutup modal klik overlay
 document.addEventListener('DOMContentLoaded', () => {
-  document.getElementById('modalDetail')?.addEventListener('click', function (e) {
-    if (e.target === this) closeModal();
-  });
+  document.getElementById('modalDetail')
+    ?.addEventListener('click', function (e) {
+      if (e.target === this) closeModal();
+    });
 });
