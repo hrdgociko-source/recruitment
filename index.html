@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Loker Karyawati Jaga Toko Snack Kiloan — Gociko Snack">
+  <title>Loker Gociko Snack</title>
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="icon" href="assets/logo-gociko.png">
+</head>
+<body>
+
+<!-- Toast -->
+<div class="toast-container" id="toastContainer"></div>
+
+<div class="page-wrapper">
+
+  <!-- NAVBAR -->
+  <nav class="navbar">
+    <div class="navbar-brand">
+      <img src="assets/logo-gociko.png" alt="Gociko Snack">
+      <div>
+        <div class="navbar-title">Gociko Snack</div>
+        <div class="navbar-subtitle">Snack Kiloan Indonesia</div>
+      </div>
+    </div>
+    <a href="admin.html" class="navbar-link">Admin ›</a>
+  </nav>
+
+  <!-- ════════════════════════════════════════
+       LANDING PAGE
+  ════════════════════════════════════════ -->
+  <div id="landingPage">
+
+    <!-- HERO -->
+    <section class="hero">
+      <div class="hero-badge">🔥 Segera Dibutuhkan!</div>
+      <img src="assets/logo-gociko.png" alt="Gociko Snack" class="hero-logo">
+      <h1>Karyawati <span>Jaga Toko</span><br>Snack Kiloan</h1>
+      <p class="hero-subtitle">
+        Bergabunglah bersama tim Gociko Snack<br>
+        di semua outlet kami!
+      </p>
+    </section>
+
+    <div class="container" style="padding-top:16px; padding-bottom:32px;">
+
+      <!-- BENEFIT -->
+      <div class="card">
+        <div class="card-header">
+          <div class="card-icon">🎁</div>
+          <h3>Benefit Menarik</h3>
+        </div>
+        <div class="benefit-grid">
+          <div class="benefit-item">
+            <div class="bi-icon">💰</div>
+            <div class="bi-label">Gaji Pokok</div>
+            <div class="bi-value">Rp 1.280.000</div>
+          </div>
+          <div class="benefit-item">
+            <div class="bi-icon">🍱</div>
+            <div class="bi-label">Uang Makan</div>
+            <div class="bi-value">Rp 300.000</div>
+          </div>
+          <div class="benefit-item">
+            <div class="bi-icon">🚌</div>
+            <div class="bi-label">Subsidi Transport</div>
+            <div class="bi-value">Rp 150.000</div>
+          </div>
+          <div class="benefit-item">
+            <div class="bi-icon">🏠</div>
+            <div class="bi-label">Fasilitas</div>
+            <div class="bi-value">Mess & Perlengkapan</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- JAM KERJA -->
+      <div class="card">
+        <div class="card-header">
+          <div class="card-icon">⏰</div>
+          <h3>Jam Kerja</h3>
+        </div>
+        <div class="shift-grid">
+          <div class="shift-item">
+            <div class="si-icon">☀️</div>
+            <div class="si-label">Shift Pagi</div>
+            <div class="si-time">08.00 – 15.00 WIB</div>
+          </div>
+          <div class="shift-item">
+            <div class="si-icon">🌤️</div>
+            <div class="si-label">Shift Siang</div>
+            <div class="si-time">14.00 – 21.00 WIB</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- KUALIFIKASI -->
+      <div class="card">
+        <div class="card-header">
+          <div class="card-icon">📋</div>
+          <h3>Kualifikasi</h3>
+        </div>
+        <ul class="kualifikasi-list">
+          <li>Muslimah berhijab</li>
+          <li>Usia 20 – 30 tahun</li>
+          <li>Pendidikan minimal SMP</li>
+          <li>Jujur, ramah, cepat, dan akurat</li>
+          <li>Wajib menjalankan sholat 5 waktu</li>
+          <li>Mampu bekerja dalam tim</li>
+          <li>Bersedia ditempatkan di luar kota</li>
+          <li>Siap kerja shift & lembur (double shift)</li>
+          <li>Memiliki semangat kerja yang tinggi</li>
+        </ul>
+      </div>
+
+      <!-- CTA DAFTAR -->
+      <button class="btn btn-primary" onclick="scrollToForm()" style="margin-bottom:20px;">
+        🚀 Daftar Sekarang!
+      </button>
+      <p style="text-align:center;font-size:12px;color:var(--gray-500);margin-bottom:24px;">
+        Penempatan: <strong>Gociko Snack — Semua Outlet</strong>
+      </p>
+
+      <!-- ══════════════════════════════════
+           FORM PENDAFTARAN
+      ══════════════════════════════════ -->
+      <div id="formSection">
+
+        <div style="text-align:center;margin-bottom:20px;">
+          <h2 style="font-size:20px;font-weight:800;">📝 Formulir Pendaftaran</h2>
+          <p style="font-size:13px;color:var(--gray-500);margin-top:4px;">
+            Isi dengan lengkap dan jujur ya!
+          </p>
+        </div>
+
+        <form id="lamaranForm" novalidate>
+
+          <!-- DATA DIRI -->
+          <div class="card">
+            <div class="card-header">
+              <div class="card-icon">👤</div>
+              <h3>Data Diri</h3>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">Nama Panggilan <span class="required">*</span></label>
+              <input type="text" class="form-control" id="namaPanggilan"
+                     placeholder="Contoh: Siti" required>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">Usia <span class="required">*</span></label>
+              <input type="number" class="form-control" id="usia"
+                     placeholder="Contoh: 24" min="20" max="30" required>
+              <span class="form-hint">Usia minimal 20 tahun, maksimal 30 tahun</span>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">No. WhatsApp Aktif <span class="required">*</span></label>
+              <input type="tel" class="form-control" id="noWhatsapp"
+                     placeholder="Contoh: 08123456789" required>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">Pendidikan Terakhir <span class="required">*</span></label>
+              <select class="form-control" id="pendidikan" required>
+                <option value="">-- Pilih Pendidikan --</option>
+                <option value="SMP">SMP</option>
+                <option value="SMA">SMA</option>
+                <option value="SMK">SMK</option>
+                <option value="D3">D3</option>
+                <option value="S1">S1</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">Nama Sekolah / Institusi <span class="required">*</span></label>
+              <input type="text" class="form-control" id="namaSekolah"
+                     placeholder="Contoh: SMAN 1 Surakarta" required>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">Status Pernikahan <span class="required">*</span></label>
+              <div class="radio-group">
+                <label class="radio-option"
+                       onclick="selectRadio(this,'statusPernikahan','Lajang')">
+                  <input type="radio" name="statusPernikahan" value="Lajang">
+                  💍 Lajang
+                </label>
+                <label class="radio-option"
+                       onclick="selectRadio(this,'statusPernikahan','Menikah')">
+                  <input type="radio" name="statusPernikahan" value="Menikah">
+                  👨‍👩‍👧 Menikah
+                </label>
+                <label class="radio-option"
+                       onclick="selectRadio(this,'statusPernikahan','Janda')">
+                  <input type="radio" name="statusPernikahan" value="Janda">
+                  🌸 Janda
+                </label>
+              </div>
+            </div>
+
+            <div class="form-group" style="margin-bottom:0;">
+              <label class="form-label">Alamat Domisili <span class="required">*</span></label>
+              <textarea class="form-control" id="alamat" rows="3"
+                        placeholder="Tulis alamat lengkap kamu..." required></textarea>
+            </div>
+
+          </div>
+
+          <!-- PENGALAMAN KERJA -->
+          <div class="card">
+            <div class="card-header">
+              <div class="card-icon">💼</div>
+              <h3>Pengalaman Kerja</h3>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">
+                Ceritakan pengalaman kerja kamu
+                <span style="font-weight:400;color:var(--gray-400);">(opsional)</span>
+              </label>
+              <textarea class="form-control" id="pengalamanKerja" rows="5"
+                        placeholder="Contoh: Pernah bekerja di toko kelontong 1 tahun sebagai kasir. Juga pernah bekerja di warung makan 6 bulan..."></textarea>
+              <span class="form-hint">
+                Jika belum pernah bekerja, tulis "Belum ada pengalaman kerja"
+              </span>
+            </div>
+
+            <div class="form-group" style="margin-bottom:0;">
+              <label class="form-label">
+                Bersedia Ditempatkan di Luar Kota? <span class="required">*</span>
+              </label>
+              <div class="radio-group">
+                <label class="radio-option"
+                       onclick="selectRadio(this,'bersediaLuarKota','Ya')">
+                  <input type="radio" name="bersediaLuarKota" value="Ya">
+                  ✅ Ya, Bersedia
+                </label>
+                <label class="radio-option"
+                       onclick="selectRadio(this,'bersediaLuarKota','Tidak')">
+                  <input type="radio" name="bersediaLuarKota" value="Tidak">
+                  ❌ Tidak
+                </label>
+              </div>
+            </div>
+          </div>
+
+          <!-- FOTO KTP -->
+          <div class="card">
+            <div class="card-header">
+              <div class="card-icon">🪪</div>
+              <h3>Foto KTP</h3>
+            </div>
+
+            <div class="upload-area" id="uploadAreaKTP"
+                 onclick="document.getElementById('ktpFile').click()"
+                 ondragover="handleDragOver(event,'ktp')"
+                 ondrop="handleDrop(event,'ktp')">
+              <div class="upload-icon">📷</div>
+              <div class="upload-text">Klik untuk upload foto KTP</div>
+              <div class="upload-hint">Format JPG / PNG • Maks. 2MB</div>
+            </div>
+            <input type="file" id="ktpFile" accept="image/jpeg,image/png"
+                   style="display:none"
+                   onchange="handleFileSelect(event,'ktp')">
+
+            <div class="upload-preview" id="uploadPreviewKTP">
+              <img id="previewImgKTP" src="" alt="Preview KTP">
+            </div>
+
+            <div class="upload-progress" id="uploadProgressKTP">
+              <div class="progress-label" id="progressLabelKTP">Mengupload...</div>
+              <div class="progress-bar">
+                <div class="progress-fill" id="progressFillKTP"></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- FOTO SELFIE -->
+          <div class="card">
+            <div class="card-header">
+              <div class="card-icon">🤳</div>
+              <h3>Foto Selfie</h3>
+            </div>
+
+            <div class="upload-info-box">
+              <p>
+                📸 <strong>Ketentuan foto selfie:</strong><br>
+                • Wajah tampak jelas & tidak blur<br>
+                • Gunakan hijab rapi<br>
+                • Pencahayaan cukup<br>
+                • Ekspresi ramah & senyum<br>
+                • Background bersih / rapi
+              </p>
+            </div>
+
+            <div class="upload-area" id="uploadAreaSelfie"
+                 onclick="document.getElementById('selfieFile').click()"
+                 ondragover="handleDragOver(event,'selfie')"
+                 ondrop="handleDrop(event,'selfie')">
+              <div class="upload-icon">🤳</div>
+              <div class="upload-text">Klik untuk upload foto selfie</div>
+              <div class="upload-hint">Format JPG / PNG • Maks. 2MB</div>
+            </div>
+            <input type="file" id="selfieFile" accept="image/jpeg,image/png"
+                   style="display:none"
+                   onchange="handleFileSelect(event,'selfie')">
+
+            <div class="upload-preview" id="uploadPreviewSelfie">
+              <img id="previewImgSelfie" src="" alt="Preview Selfie">
+            </div>
+
+            <div class="upload-progress" id="uploadProgressSelfie">
+              <div class="progress-label" id="progressLabelSelfie">Mengupload...</div>
+              <div class="progress-bar">
+                <div class="progress-fill" id="progressFillSelfie"></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- SUBMIT -->
+          <button type="submit" class="btn btn-primary" id="submitBtn">
+            🚀 Kirim Lamaran
+          </button>
+
+          <p style="text-align:center;font-size:11px;color:var(--gray-400);margin-top:12px;">
+            Dengan mengirim lamaran, kamu menyetujui data digunakan<br>
+            untuk keperluan rekrutmen Gociko Snack.
+          </p>
+
+        </form>
+      </div>
+      <!-- end formSection -->
+
+    </div>
+    <!-- end container -->
+
+  </div>
+  <!-- end landingPage -->
+
+  <!-- ════════════════════════════════════════
+       SUCCESS PAGE
+  ════════════════════════════════════════ -->
+  <div id="successPage" class="hidden">
+    <div class="success-page">
+
+      <div class="success-icon">✅</div>
+      <h1 class="success-title">Lamaran Berhasil<br>Dikirim!</h1>
+      <p class="success-subtitle">
+        Simpan ID lamaran kamu ya!<br>
+        Gunakan saat konfirmasi via WhatsApp.
+      </p>
+
+      <div class="success-id-box">
+        <div class="success-id-label">ID Lamaran Kamu</div>
+        <div class="success-id" id="successId">P-001</div>
+      </div>
+
+      <div class="success-actions">
+        <p style="color:var(--gray-400);font-size:13px;text-align:center;">
+          Langkah selanjutnya, konfirmasi lamaranmu ke tim Gociko Snack via WhatsApp 👇
+        </p>
+        <button class="btn btn-whatsapp" onclick="kirimWA()">
+          💬 Kirim Konfirmasi via WhatsApp
+        </button>
+        <button class="btn btn-outline" onclick="resetForm()">
+          ← Kembali ke Halaman Utama
+        </button>
+      </div>
+
+    </div>
+  </div>
+  <!-- end successPage -->
+
+</div>
+<!-- end page-wrapper -->
+
+<!-- FOOTER -->
+<footer class="footer">
+  <img src="assets/logo-gociko.png" alt="Gociko Snack">
+  <div class="footer-tagline">
+    🤝 Kekeluargaan &nbsp;|&nbsp; 🙏 Berkah &nbsp;|&nbsp; 📈 Berkembang
+  </div>
+  <div>© 2025 Gociko Snack Indonesia</div>
+</footer>
+
+<script src="js/config.js"></script>
+<script src="js/lamaran.js"></script>
+</body>
+</html>
