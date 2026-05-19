@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Panel — Gociko Loker</title>
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="icon" href="assets/logo-gociko.png">
+</head>
+<body>
+
+<div class="toast-container" id="toastContainer"></div>
+
+<div class="page-wrapper">
+
+  <!-- NAVBAR -->
+  <nav class="navbar">
+    <div class="navbar-brand">
+      <img src="assets/logo-gociko.png" alt="Gociko Snack">
+      <div>
+        <div class="navbar-title">Admin Panel</div>
+        <div class="navbar-subtitle">Gociko Snack Rekrutmen</div>
+      </div>
+    </div>
+    <a href="index.html" class="navbar-link">Form Loker ›</a>
+  </nav>
+
+  <div class="container" style="padding-top:20px;padding-bottom:40px;">
+
+    <!-- STATS -->
+    <div class="stats-grid">
+      <div class="stat-card total">
+        <div class="stat-number" id="statTotal">—</div>
+        <div class="stat-label">Total</div>
+      </div>
+      <div class="stat-card baru">
+        <div class="stat-number" id="statBaru">—</div>
+        <div class="stat-label">🆕 Baru</div>
+      </div>
+      <div class="stat-card diproses">
+        <div class="stat-number" id="statDiproses">—</div>
+        <div class="stat-label">🔄 Diproses</div>
+      </div>
+      <div class="stat-card diterima">
+        <div class="stat-number" id="statDiterima">—</div>
+        <div class="stat-label">✅ Diterima</div>
+      </div>
+    </div>
+
+    <!-- HEADER DAFTAR -->
+    <h2 style="font-size:18px;font-weight:800;margin-bottom:16px;">
+      📋 Daftar Pelamar
+    </h2>
+
+    <!-- SEARCH -->
+    <div class="search-bar">
+      <span class="search-icon">🔍</span>
+      <input type="text" id="searchInput"
+             placeholder="Cari nama atau ID pelamar..."
+             oninput="handleSearch(this.value)">
+    </div>
+
+    <!-- FILTER TABS -->
+    <div class="filter-tabs">
+      <div class="filter-tab active" onclick="filterPelamar('Semua',this)">Semua</div>
+      <div class="filter-tab" onclick="filterPelamar('Baru',this)">🆕 Baru</div>
+      <div class="filter-tab" onclick="filterPelamar('Diproses',this)">🔄 Diproses</div>
+      <div class="filter-tab" onclick="filterPelamar('Diterima',this)">✅ Diterima</div>
+      <div class="filter-tab" onclick="filterPelamar('Ditolak',this)">❌ Ditolak</div>
+    </div>
+
+    <!-- LIST -->
+    <div class="pelamar-list" id="pelamarList">
+      <div class="loading-state">
+        <div class="spinner"></div>
+        <p style="color:var(--gray-400);font-size:13px;">Memuat data pelamar...</p>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- MODAL DETAIL -->
+<div class="modal-overlay" id="modalDetail">
+  <div class="modal-drawer">
+    <div class="modal-handle"></div>
+    <div class="modal-header">
+      <h3 class="modal-title" id="modalTitle">Detail Pelamar</h3>
+      <button class="modal-close" onclick="closeModal()">✕</button>
+    </div>
+    <div class="modal-body" id="modalBody"></div>
+  </div>
+</div>
+
+<script src="js/config.js"></script>
+<script src="js/admin.js"></script>
+</body>
+</html>
