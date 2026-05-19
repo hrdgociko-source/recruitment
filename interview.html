@@ -1,0 +1,402 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Form Interview — Gociko Loker</title>
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="icon" href="assets/logo-gociko.png">
+</head>
+<body>
+
+<div class="toast-container" id="toastContainer"></div>
+
+<div class="page-wrapper">
+
+  <!-- NAVBAR -->
+  <nav class="navbar">
+    <div class="navbar-brand">
+      <img src="assets/logo-gociko.png" alt="Gociko Snack">
+      <div>
+        <div class="navbar-title">Form Interview</div>
+        <div class="navbar-subtitle">HR Gociko Snack</div>
+      </div>
+    </div>
+    <button onclick="history.back()"
+            style="background:none;border:none;color:var(--gray-400);
+                   font-size:13px;cursor:pointer;font-family:'Poppins',sans-serif;">
+      ← Kembali
+    </button>
+  </nav>
+
+  <div class="container" style="padding-top:16px;padding-bottom:48px;">
+
+    <!-- INFO PELAMAR -->
+    <div class="card" style="border-left:4px solid var(--primary);">
+      <div style="font-size:11px;color:var(--gray-400);font-weight:700;
+                  text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px;">
+        Interview untuk:
+      </div>
+      <div style="font-size:20px;font-weight:800;" id="interviewNama">—</div>
+      <div style="font-size:13px;color:var(--gray-500);margin-top:2px;" id="interviewId">—</div>
+      <div style="margin-top:10px;" id="interviewBadge"></div>
+    </div>
+
+    <form id="interviewForm" novalidate>
+
+      <!-- INFO INTERVIEW -->
+      <div class="card">
+        <div class="card-header">
+          <div class="card-icon">🏪</div>
+          <h3>Info Interview</h3>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Outlet <span class="required">*</span></label>
+          <input type="text" class="form-control" id="outlet"
+                 placeholder="Contoh: Gociko Snack Solo Baru" required>
+        </div>
+        <div class="form-group" style="margin-bottom:0;">
+          <label class="form-label">Tanggal Interview <span class="required">*</span></label>
+          <input type="date" class="form-control" id="tanggalInterview" required>
+        </div>
+      </div>
+
+      <!-- SECTION LAJANG / JANDA -->
+      <div id="sectionLajangJanda" class="hidden">
+        <div class="section-divider">👨‍👩‍👧 Data Keluarga (Lajang / Janda)</div>
+        <div class="card">
+
+          <div class="form-group">
+            <label class="form-label">Pekerjaan Ayah</label>
+            <input type="text" class="form-control" id="pekerjaanAyah"
+                   placeholder="Contoh: Wiraswasta">
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Pekerjaan Ibu</label>
+            <input type="text" class="form-control" id="pekerjaanIbu"
+                   placeholder="Contoh: Ibu Rumah Tangga">
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Anak ke-</label>
+            <input type="number" class="form-control" id="anakKe"
+                   placeholder="Contoh: 2" min="1">
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Ijin Orang Tua</label>
+            <div class="radio-group">
+              <label class="radio-option"
+                     onclick="selectRadio(this,'ijinOrtu','Sudah')">
+                <input type="radio" name="ijinOrtu" value="Sudah">✅ Sudah
+              </label>
+              <label class="radio-option"
+                     onclick="selectRadio(this,'ijinOrtu','Belum')">
+                <input type="radio" name="ijinOrtu" value="Belum">⏳ Belum
+              </label>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Rencana Kuliah / Kursus / Training / TKI</label>
+            <div class="radio-group">
+              <label class="radio-option"
+                     onclick="selectRadio(this,'rencanaKuliah','Ya')">
+                <input type="radio" name="rencanaKuliah" value="Ya">✅ Ya
+              </label>
+              <label class="radio-option"
+                     onclick="selectRadio(this,'rencanaKuliah','Tidak')">
+                <input type="radio" name="rencanaKuliah" value="Tidak">❌ Tidak
+              </label>
+            </div>
+          </div>
+
+          <div class="form-group" style="margin-bottom:0;">
+            <label class="form-label">Rencana Nikah</label>
+            <input type="text" class="form-control" id="rencaNikah"
+                   placeholder="Contoh: Belum ada rencana / Tahun depan">
+          </div>
+
+        </div>
+      </div>
+
+      <!-- SECTION MENIKAH -->
+      <div id="sectionMenikah" class="hidden">
+        <div class="section-divider">💍 Data Keluarga (Menikah)</div>
+        <div class="card">
+
+          <div class="form-group">
+            <label class="form-label">Pekerjaan Suami</label>
+            <input type="text" class="form-control" id="pekerjaanSuami"
+                   placeholder="Contoh: Karyawan Swasta">
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Jumlah Anak</label>
+            <input type="number" class="form-control" id="jumlahAnak"
+                   placeholder="Contoh: 2" min="0">
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Usia Anak Paling Kecil</label>
+            <input type="text" class="form-control" id="usiaAnakTermuda"
+                   placeholder="Contoh: 2 tahun">
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Rencana Kehamilan</label>
+            <div class="radio-group">
+              <label class="radio-option"
+                     onclick="selectRadio(this,'rencanaKehamilan','Ya')">
+                <input type="radio" name="rencanaKehamilan" value="Ya">✅ Ya
+              </label>
+              <label class="radio-option"
+                     onclick="selectRadio(this,'rencanaKehamilan','Tidak')">
+                <input type="radio" name="rencanaKehamilan" value="Tidak">❌ Tidak
+              </label>
+            </div>
+          </div>
+
+          <div class="form-group" style="margin-bottom:0;">
+            <label class="form-label">Ijin Suami</label>
+            <div class="radio-group">
+              <label class="radio-option"
+                     onclick="selectRadio(this,'ijinSuami','Sudah')">
+                <input type="radio" name="ijinSuami" value="Sudah">✅ Sudah
+              </label>
+              <label class="radio-option"
+                     onclick="selectRadio(this,'ijinSuami','Belum')">
+                <input type="radio" name="ijinSuami" value="Belum">⏳ Belum
+              </label>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- PENILAIAN UMUM -->
+      <div class="section-divider">📊 Penilaian Umum</div>
+      <div class="card">
+
+        <div class="form-group">
+          <label class="form-label">Kemampuan Berhitung Dasar</label>
+          <div class="radio-group">
+            <label class="radio-option"
+                   onclick="selectRadio(this,'kemampuanBerhitung','Tinggi')">
+              <input type="radio" name="kemampuanBerhitung" value="Tinggi">🟢 Tinggi
+            </label>
+            <label class="radio-option"
+                   onclick="selectRadio(this,'kemampuanBerhitung','Sedang')">
+              <input type="radio" name="kemampuanBerhitung" value="Sedang">🟡 Sedang
+            </label>
+            <label class="radio-option"
+                   onclick="selectRadio(this,'kemampuanBerhitung','Rendah')">
+              <input type="radio" name="kemampuanBerhitung" value="Rendah">🔴 Rendah
+            </label>
+          </div>
+        </div>
+
+        <div class="form-group" style="margin-bottom:0;">
+          <label class="form-label">PMS (Post Menstruation Syndrome)</label>
+          <div class="radio-group">
+            <label class="radio-option"
+                   onclick="selectRadio(this,'pms','Aman')">
+              <input type="radio" name="pms" value="Aman">✅ Aman
+            </label>
+            <label class="radio-option"
+                   onclick="selectRadio(this,'pms','Tidak Aman')">
+              <input type="radio" name="pms" value="Tidak Aman">⚠️ Tidak Aman
+            </label>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- RIWAYAT PEKERJAAN -->
+      <div class="section-divider">💼 Riwayat Pekerjaan</div>
+      <div class="card">
+        <div style="display:grid;grid-template-columns:1fr 110px;gap:8px;margin-bottom:6px;">
+          <div style="font-size:12px;font-weight:600;color:var(--gray-500);">Tempat Kerja</div>
+          <div style="font-size:12px;font-weight:600;color:var(--gray-500);">Lama Kerja</div>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 110px;gap:8px;margin-bottom:10px;">
+          <input type="text" class="form-control" id="pengalamanKerja1" placeholder="Tempat kerja 1">
+          <input type="text" class="form-control" id="lamaKerja1" placeholder="Contoh: 1 thn">
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 110px;gap:8px;margin-bottom:10px;">
+          <input type="text" class="form-control" id="pengalamanKerja2" placeholder="Tempat kerja 2">
+          <input type="text" class="form-control" id="lamaKerja2" placeholder="Contoh: 6 bln">
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 110px;gap:8px;">
+          <input type="text" class="form-control" id="pengalamanKerja3" placeholder="Tempat kerja 3">
+          <input type="text" class="form-control" id="lamaKerja3" placeholder="Contoh: 3 bln">
+        </div>
+      </div>
+
+      <!-- KESEHATAN & LAINNYA -->
+      <div class="section-divider">🏥 Kesehatan & Lainnya</div>
+      <div class="card">
+
+        <div class="form-group">
+          <label class="form-label">Keluhan Sakit</label>
+          <input type="text" class="form-control" id="keluhanSakit"
+                 placeholder="Contoh: Tidak ada / Maag / Asma">
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Pernah Opname di RS?</label>
+          <div class="radio-group">
+            <label class="radio-option"
+                   onclick="selectRadio(this,'opnameRS','Pernah')">
+              <input type="radio" name="opnameRS" value="Pernah">✅ Pernah
+            </label>
+            <label class="radio-option"
+                   onclick="selectRadio(this,'opnameRS','Tidak Pernah')">
+              <input type="radio" name="opnameRS" value="Tidak Pernah">❌ Tidak Pernah
+            </label>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Plecit (Pinjam ke Teman / Saudara)</label>
+          <div class="radio-group">
+            <label class="radio-option"
+                   onclick="selectRadio(this,'plecit','Ya')">
+              <input type="radio" name="plecit" value="Ya">✅ Ya
+            </label>
+            <label class="radio-option"
+                   onclick="selectRadio(this,'plecit','Tidak')">
+              <input type="radio" name="plecit" value="Tidak">❌ Tidak
+            </label>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Pinjol (Pinjaman Online)</label>
+          <div class="radio-group">
+            <label class="radio-option"
+                   onclick="selectRadio(this,'pinjol','Ya')">
+              <input type="radio" name="pinjol" value="Ya">✅ Ya
+            </label>
+            <label class="radio-option"
+                   onclick="selectRadio(this,'pinjol','Tidak')">
+              <input type="radio" name="pinjol" value="Tidak">❌ Tidak
+            </label>
+          </div>
+        </div>
+
+        <!-- Melamar Tempat Lain -->
+        <div class="form-group">
+          <label class="form-label">
+            Sedang Melamar / Menunggu Panggilan di Tempat Lain?
+          </label>
+          <div class="radio-group">
+            <label class="radio-option"
+                   onclick="selectRadio(this,'melamarTempatLain','Ya');toggleField('fieldTempatLain',true)">
+              <input type="radio" name="melamarTempatLain" value="Ya">✅ Ya
+            </label>
+            <label class="radio-option"
+                   onclick="selectRadio(this,'melamarTempatLain','Tidak');toggleField('fieldTempatLain',false)">
+              <input type="radio" name="melamarTempatLain" value="Tidak">❌ Tidak
+            </label>
+          </div>
+          <div id="fieldTempatLain" class="hidden" style="margin-top:10px;">
+            <input type="text" class="form-control" id="namaTempatLain"
+                   placeholder="Jika Ya, di mana?">
+          </div>
+        </div>
+
+        <!-- Ormas -->
+        <div class="form-group">
+          <label class="form-label">Ikut Ormas Agama Tertentu?</label>
+          <div class="radio-group">
+            <label class="radio-option"
+                   onclick="selectRadio(this,'ormasAgama','Ya');toggleField('fieldOrmas',true)">
+              <input type="radio" name="ormasAgama" value="Ya">✅ Ya
+            </label>
+            <label class="radio-option"
+                   onclick="selectRadio(this,'ormasAgama','Tidak');toggleField('fieldOrmas',false)">
+              <input type="radio" name="ormasAgama" value="Tidak">❌ Tidak
+            </label>
+          </div>
+          <div id="fieldOrmas" class="hidden" style="margin-top:10px;">
+            <label class="form-label" style="margin-bottom:8px;">Pilih organisasi:</label>
+            <div class="radio-group" style="flex-wrap:wrap;">
+              <label class="radio-option"
+                     onclick="selectRadio(this,'namaOrmas','NU')">
+                <input type="radio" name="namaOrmas" value="NU">NU
+              </label>
+              <label class="radio-option"
+                     onclick="selectRadio(this,'namaOrmas','Muhammadiyah')">
+                <input type="radio" name="namaOrmas" value="Muhammadiyah">Muhammadiyah
+              </label>
+              <label class="radio-option"
+                     onclick="selectRadio(this,'namaOrmas','MTA')">
+                <input type="radio" name="namaOrmas" value="MTA">MTA
+              </label>
+              <label class="radio-option"
+                     onclick="selectRadio(this,'namaOrmas','LDII')">
+                <input type="radio" name="namaOrmas" value="LDII">LDII
+              </label>
+              <label class="radio-option"
+                     onclick="selectRadio(this,'namaOrmas','Lain-lain')">
+                <input type="radio" name="namaOrmas" value="Lain-lain">Lain-lain
+              </label>
+            </div>
+          </div>
+        </div>
+
+        <!-- Kajian Rutin -->
+        <div class="form-group" style="margin-bottom:0;">
+          <label class="form-label">Kajian Rutin</label>
+          <div class="radio-group" style="flex-wrap:wrap;">
+            <label class="radio-option"
+                   onclick="selectRadio(this,'kajianRutin','Pagi')">
+              <input type="radio" name="kajianRutin" value="Pagi">🌅 Pagi
+            </label>
+            <label class="radio-option"
+                   onclick="selectRadio(this,'kajianRutin','Siang')">
+              <input type="radio" name="kajianRutin" value="Siang">☀️ Siang
+            </label>
+            <label class="radio-option"
+                   onclick="selectRadio(this,'kajianRutin','Sore')">
+              <input type="radio" name="kajianRutin" value="Sore">🌆 Sore
+            </label>
+            <label class="radio-option"
+                   onclick="selectRadio(this,'kajianRutin','Tidak Ada')">
+              <input type="radio" name="kajianRutin" value="Tidak Ada">❌ Tidak Ada
+            </label>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- CATATAN INTERVIEWER -->
+      <div class="section-divider">📝 Catatan Interviewer</div>
+      <div class="card">
+        <div class="form-group">
+          <label class="form-label">Catatan / Kesimpulan</label>
+          <textarea class="form-control" id="catatanInterview" rows="5"
+                    placeholder="Tulis catatan atau kesimpulan hasil interview..."></textarea>
+        </div>
+        <div class="form-group" style="margin-bottom:0;">
+          <label class="form-label">Nama Interviewer <span class="required">*</span></label>
+          <input type="text" class="form-control" id="interviewer"
+                 placeholder="Nama lengkap interviewer" required>
+        </div>
+      </div>
+
+      <!-- SUBMIT -->
+      <button type="submit" class="btn btn-primary" id="submitInterviewBtn">
+        💾 Simpan Hasil Interview
+      </button>
+
+    </form>
+  </div>
+</div>
+
+<script src="js/config.js"></script>
+<script src="js/interview.js"></script>
+</body>
+</html>
