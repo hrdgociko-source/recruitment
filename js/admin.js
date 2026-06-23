@@ -177,6 +177,7 @@ function setText(id, val) {
 // ============================================================
 async function loadPelamar() {
   renderLoading();
+  interviewDataCache = {};   // reset cache saat list di-refresh
   const result = await apiGet({ action: 'getPelamar' });
   if (result.status === 'success') {
     allPelamar = result.data;
@@ -276,6 +277,11 @@ function handleSearch(val) {
   renderPelamar();
 }
 
+// ── State untuk lazy load tab interview ───────────────────
+let currentModalId     = null;
+let interviewDataCache = {};   // { [id]: data | null }
+let interviewTabLoaded = false;
+
 // ============================================================
 // OPEN DETAIL MODAL
 // ============================================================
@@ -284,30 +290,26 @@ async function openDetail(id) {
   const body  = document.getElementById('modalBody');
   const title = document.getElementById('modalTitle');
 
+  // ── Reset state lazy load ──────────────────────────────
+  currentModalId     = id;
+  interviewTabLoaded = false;
+
   modal.classList.add('active');
   document.body.style.overflow = 'hidden';
 
-  body.innerHTML = `
-    <div class="loading-state">
-      <div class="spinner"></div>
-      <p style="color:var(--gray-400);font-size:13px;">Memuat detail...</p>
-    </div>`;
+  // ── Pakai data lokal — tidak perlu fetch ke server ─────
+  const p = allPelamar.find(x => x.id === id);
 
-  const [resPelamar, resInterview] = await Promise.all([
-    apiGet({ action: 'getDetailPelamar', id }),
-    apiGet({ action: 'getInterview', idPelamar: id })
-  ]);
-
-  if (resPelamar.status !== 'success') {
+  if (!p) {
     body.innerHTML = `
       <p style="color:var(--danger);padding:20px;text-align:center;">
-        ❌ Gagal memuat data pelamar.
+        ❌ Data tidak ditemukan.
       </p>`;
     return;
   }
 
-  const p  = resPelamar.data;
-  const iv = resInterview.data;
+  // iv sementara null — akan di-fetch saat tab Interview diklik
+  const iv = null;
 
   title.textContent = p.namaPanggilan;
 
@@ -324,7 +326,7 @@ async function openDetail(id) {
       <button class="tab-btn active" onclick="switchTab('tabData',this)">
         📋 Data Diri
       </button>
-      <button class="tab-btn" onclick="switchTab('tabInterview',this)">
+      <button class="tab-btn" onclick="switchTab('tabInterview',this);loadInterviewTab('${p.id}')">
         📝 Hasil Interview
       </button>
     </div>
@@ -417,9 +419,9 @@ async function openDetail(id) {
 
       <div style="margin-top:24px;padding-top:16px;
                   border-top:2px solid var(--gray-200);">
-        <button class="btn btn-primary"
+        <button class="btn btn-primary" id="btnMulaiInterview"
                 onclick="bukaInterview('${p.id}','${p.namaPanggilan}','${p.statusPernikahan}')">
-          📝 ${iv ? 'Edit Hasil Interview' : 'Mulai Interview'}
+          📝 Mulai Interview
         </button>
       </div>
 
@@ -427,7 +429,10 @@ async function openDetail(id) {
 
     <!-- TAB HASIL INTERVIEW -->
     <div id="tabInterview" class="tab-content fade-in">
-      ${renderInterviewDetail(iv, p)}
+      <div class="loading-state" id="interviewLoadingState">
+        <div class="spinner"></div>
+        <p style="color:var(--gray-400);font-size:13px;">Memuat data interview...</p>
+      </div>
     </div>
   `;
 }
@@ -557,6 +562,54 @@ function switchTab(tabId, btn) {
     .forEach(b => b.classList.remove('active'));
   document.getElementById(tabId)?.classList.add('active');
   btn.classList.add('active');
+}
+
+// ============================================================
+// LAZY LOAD TAB INTERVIEW — fetch hanya saat tab diklik
+// ============================================================
+async function loadInterviewTab(id) {
+  // Sudah pernah di-fetch untuk pelamar ini, skip
+  if (interviewTabLoaded && currentModalId === id) return;
+
+  const tabEl = document.getElementById('tabInterview');
+  if (!tabEl) return;
+
+  // Cek cache dulu sebelum fetch ke server
+  if (interviewDataCache[id] !== undefined) {
+    const p = allPelamar.find(x => x.id === id);
+    tabEl.innerHTML = renderInterviewDetail(interviewDataCache[id], p);
+    updateBtnInterview(interviewDataCache[id], p);
+    interviewTabLoaded = true;
+    return;
+  }
+
+  // Fetch ke GAS — hanya terjadi sekali per pelamar per sesi
+  tabEl.innerHTML = `
+    <div class="loading-state">
+      <div class="spinner"></div>
+      <p style="color:var(--gray-400);font-size:13px;">Memuat data interview...</p>
+    </div>`;
+
+  const res = await apiGet({ action: 'getInterview', idPelamar: id });
+  const iv  = res.status === 'success' ? res.data : null;
+
+  // Simpan ke cache
+  interviewDataCache[id] = iv;
+
+  // Render hanya kalau modal ini masih terbuka untuk pelamar yang sama
+  if (currentModalId !== id) return;
+
+  const p = allPelamar.find(x => x.id === id);
+  tabEl.innerHTML = renderInterviewDetail(iv, p);
+  updateBtnInterview(iv, p);
+  interviewTabLoaded = true;
+}
+
+// Update label tombol Mulai / Edit Interview di tab Data Diri
+function updateBtnInterview(iv, p) {
+  const btn = document.getElementById('btnMulaiInterview');
+  if (!btn) return;
+  btn.textContent = iv ? '✏️ Edit Hasil Interview' : '📝 Mulai Interview';
 }
 
 // ============================================================
