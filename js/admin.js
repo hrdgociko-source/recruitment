@@ -290,149 +290,163 @@ async function openDetail(id) {
   const body  = document.getElementById('modalBody');
   const title = document.getElementById('modalTitle');
 
-  // ── Reset state lazy load ──────────────────────────────
+  // ── Reset state ────────────────────────────────────────
   currentModalId     = id;
   interviewTabLoaded = false;
 
   modal.classList.add('active');
   document.body.style.overflow = 'hidden';
 
-  // ── Pakai data lokal — tidak perlu fetch ke server ─────
-  const p = allPelamar.find(x => x.id === id);
-
-  if (!p) {
-    body.innerHTML = `
-      <p style="color:var(--danger);padding:20px;text-align:center;">
-        ❌ Data tidak ditemukan.
-      </p>`;
-    return;
+  // ── Data ringkasan dari memori (untuk header modal) ────
+  const ringkasan = allPelamar.find(x => x.id === id);
+  if (ringkasan) {
+    title.textContent = ringkasan.namaPanggilan;
   }
 
-  // iv sementara null — akan di-fetch saat tab Interview diklik
-  const iv = null;
-
-  title.textContent = p.namaPanggilan;
-
+  // ── Tampilkan skeleton langsung — modal tidak blank ────
   body.innerHTML = `
-
-    <div class="pelamar-detail-header">
-      <div class="pelamar-detail-id">${p.id}</div>
-      <div class="pelamar-detail-name">${p.namaPanggilan}</div>
-      ${getBadgeHtml(p.statusLamaran)}
-      <div class="pelamar-detail-date">📅 Daftar: ${p.timestamp}</div>
+    <div class="pelamar-detail-header" id="detailHeader">
+      ${ringkasan ? `
+        <div class="pelamar-detail-id">${ringkasan.id}</div>
+        <div class="pelamar-detail-name">${ringkasan.namaPanggilan}</div>
+        ${getBadgeHtml(ringkasan.statusLamaran)}
+        <div class="pelamar-detail-date">📅 Daftar: ${ringkasan.timestamp}</div>
+      ` : ''}
     </div>
 
     <div class="tab-header">
       <button class="tab-btn active" onclick="switchTab('tabData',this)">
         📋 Data Diri
       </button>
-      <button class="tab-btn" onclick="switchTab('tabInterview',this);loadInterviewTab('${p.id}')">
+      <button class="tab-btn" onclick="switchTab('tabInterview',this);loadInterviewTab('${id}')">
         📝 Hasil Interview
       </button>
     </div>
 
-    <!-- TAB DATA DIRI -->
+    <!-- TAB DATA DIRI: skeleton dulu -->
     <div id="tabData" class="tab-content active fade-in">
-
-      <div class="info-section">
-        <div class="info-section-title">Data Pribadi</div>
-        ${infoRow('Usia',         p.usia + ' tahun')}
-        <div class="info-row">
-          <span class="info-label">No. WhatsApp</span>
-          <span class="info-value">
-            <a href="https://wa.me/62${p.noWhatsapp.replace(/^0/,'')}"
-               target="_blank"
-               style="color:#25D366;font-weight:600;">
-              📱 ${p.noWhatsapp}
-            </a>
-          </span>
-        </div>
-        ${infoRow('Pendidikan',   p.pendidikan)}
-        ${infoRow('Nama Sekolah', p.namaSekolah)}
-        ${infoRow('Status Nikah', p.statusPernikahan)}
-        ${infoRow('Alamat',       p.alamat)}
-        ${infoRow('Luar Kota',
-          p.bersediaLuarKota === 'Ya'
-            ? '✅ Bersedia'
-            : '❌ Tidak Bersedia')}
+      <div class="loading-state">
+        <div class="spinner"></div>
+        <p style="color:var(--gray-400);font-size:13px;">Memuat data lengkap...</p>
       </div>
-
-      <div class="info-section">
-        <div class="info-section-title">Pengalaman Kerja</div>
-        <div style="font-size:13px;line-height:1.8;color:var(--dark);">
-          ${p.pengalamanKerja || '-'}
-        </div>
-      </div>
-
-      <div class="info-section">
-        <div class="info-section-title">📸 Foto Pelamar</div>
-        <div class="foto-grid">
-          <div>
-            <div class="foto-label">🪪 Foto KTP</div>
-            ${p.linkKTP
-              ? `<a href="${p.linkKTP}" target="_blank" class="foto-link ktp">
-                   🪪 Lihat KTP
-                 </a>`
-              : `<div class="foto-kosong">Belum diupload</div>`}
-          </div>
-          <div>
-            <div class="foto-label">🤳 Foto Selfie</div>
-            ${p.linkSelfie
-              ? `<a href="${p.linkSelfie}" target="_blank"
-                    class="foto-link selfie">
-                   🤳 Lihat Selfie
-                 </a>`
-              : `<div class="foto-kosong">Belum diupload</div>`}
-          </div>
-        </div>
-      </div>
-
-      <div class="info-section">
-        <div class="info-section-title">⚙️ Update Status</div>
-        <div style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:16px;">
-          <button class="btn btn-sm btn-info"
-                  onclick="updateStatus('${p.id}','Diproses')">
-            🔄 Diproses
-          </button>
-          <button class="btn btn-sm btn-success"
-                  onclick="updateStatus('${p.id}','Diterima')">
-            ✅ Diterima
-          </button>
-          <button class="btn btn-sm btn-danger"
-                  onclick="updateStatus('${p.id}','Ditolak')">
-            ❌ Ditolak
-          </button>
-        </div>
-        <div class="form-group" style="margin-bottom:12px;">
-          <label class="form-label">Catatan Admin</label>
-          <textarea class="form-control" id="adminCatatan"
-                    rows="3"
-                    placeholder="Tambahkan catatan..."
-                    >${p.catatanAdmin || ''}</textarea>
-        </div>
-        <button class="btn btn-yellow btn-sm"
-                onclick="simpanCatatan('${p.id}')"
-                style="width:auto;">
-          💾 Simpan Catatan
-        </button>
-      </div>
-
-      <div style="margin-top:24px;padding-top:16px;
-                  border-top:2px solid var(--gray-200);">
-        <button class="btn btn-primary" id="btnMulaiInterview"
-                onclick="bukaInterview('${p.id}','${p.namaPanggilan}','${p.statusPernikahan}')">
-          📝 Mulai Interview
-        </button>
-      </div>
-
     </div>
 
-    <!-- TAB HASIL INTERVIEW -->
+    <!-- TAB HASIL INTERVIEW: lazy load -->
     <div id="tabInterview" class="tab-content fade-in">
-      <div class="loading-state" id="interviewLoadingState">
+      <div class="loading-state">
         <div class="spinner"></div>
         <p style="color:var(--gray-400);font-size:13px;">Memuat data interview...</p>
       </div>
+    </div>
+  `;
+
+  // ── Fetch detail lengkap di background ────────────────
+  const resPelamar = await apiGet({ action: 'getDetailPelamar', id });
+
+  // Batalkan render jika modal sudah diganti (user klik pelamar lain)
+  if (currentModalId !== id) return;
+
+  if (resPelamar.status !== 'success') {
+    document.getElementById('tabData').innerHTML = `
+      <p style="color:var(--danger);padding:20px;text-align:center;">
+        ❌ Gagal memuat data. Coba tutup dan buka lagi.
+      </p>`;
+    return;
+  }
+
+  const p = resPelamar.data;
+
+  // ── Render tab Data Diri ───────────────────────────────
+  document.getElementById('tabData').innerHTML = `
+
+    <div class="info-section">
+      <div class="info-section-title">Data Pribadi</div>
+      ${infoRow('Usia', p.usia + ' tahun')}
+      <div class="info-row">
+        <span class="info-label">No. WhatsApp</span>
+        <span class="info-value">
+          <a href="https://wa.me/62${(p.noWhatsapp || '').replace(/^0/, '')}"
+             target="_blank"
+             style="color:#25D366;font-weight:600;">
+            📱 ${p.noWhatsapp || '-'}
+          </a>
+        </span>
+      </div>
+      ${infoRow('Pendidikan',   p.pendidikan)}
+      ${infoRow('Nama Sekolah', p.namaSekolah)}
+      ${infoRow('Status Nikah', p.statusPernikahan)}
+      ${infoRow('Alamat',       p.alamat)}
+      ${infoRow('Luar Kota',
+        p.bersediaLuarKota === 'Ya'
+          ? '✅ Bersedia'
+          : '❌ Tidak Bersedia')}
+    </div>
+
+    <div class="info-section">
+      <div class="info-section-title">Pengalaman Kerja</div>
+      <div style="font-size:13px;line-height:1.8;color:var(--dark);">
+        ${p.pengalamanKerja || '-'}
+      </div>
+    </div>
+
+    <div class="info-section">
+      <div class="info-section-title">📸 Foto Pelamar</div>
+      <div class="foto-grid">
+        <div>
+          <div class="foto-label">🪪 Foto KTP</div>
+          ${p.linkKTP
+            ? `<a href="${p.linkKTP}" target="_blank" class="foto-link ktp">
+                 🪪 Lihat KTP
+               </a>`
+            : `<div class="foto-kosong">Belum diupload</div>`}
+        </div>
+        <div>
+          <div class="foto-label">🤳 Foto Selfie</div>
+          ${p.linkSelfie
+            ? `<a href="${p.linkSelfie}" target="_blank" class="foto-link selfie">
+                 🤳 Lihat Selfie
+               </a>`
+            : `<div class="foto-kosong">Belum diupload</div>`}
+        </div>
+      </div>
+    </div>
+
+    <div class="info-section">
+      <div class="info-section-title">⚙️ Update Status</div>
+      <div style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:16px;">
+        <button class="btn btn-sm btn-info"
+                onclick="updateStatus('${p.id}','Diproses')">
+          🔄 Diproses
+        </button>
+        <button class="btn btn-sm btn-success"
+                onclick="updateStatus('${p.id}','Diterima')">
+          ✅ Diterima
+        </button>
+        <button class="btn btn-sm btn-danger"
+                onclick="updateStatus('${p.id}','Ditolak')">
+          ❌ Ditolak
+        </button>
+      </div>
+      <div class="form-group" style="margin-bottom:12px;">
+        <label class="form-label">Catatan Admin</label>
+        <textarea class="form-control" id="adminCatatan"
+                  rows="3"
+                  placeholder="Tambahkan catatan..."
+                  >${p.catatanAdmin || ''}</textarea>
+      </div>
+      <button class="btn btn-yellow btn-sm"
+              onclick="simpanCatatan('${p.id}')"
+              style="width:auto;">
+        💾 Simpan Catatan
+      </button>
+    </div>
+
+    <div style="margin-top:24px;padding-top:16px;
+                border-top:2px solid var(--gray-200);">
+      <button class="btn btn-primary" id="btnMulaiInterview"
+              onclick="bukaInterview('${p.id}','${p.namaPanggilan}','${p.statusPernikahan}')">
+        📝 Mulai Interview
+      </button>
     </div>
   `;
 }
