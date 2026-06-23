@@ -9,27 +9,98 @@ let isEditMode  = false;
 // INIT
 // ============================================================
 document.addEventListener('DOMContentLoaded', async () => {
-  // Ambil ID dari URL atau sessionStorage
+  // ── 1. Cek session admin dulu ────────────────────────────
+  const isAuth = sessionStorage.getItem('gociko_admin_auth');
+  if (isAuth !== 'true') {
+    redirectWithMessage('Sesi admin tidak ditemukan. Silakan login terlebih dahulu.', 'admin.html');
+    return;
+  }
+
+  // ── 2. Ambil ID dari URL atau sessionStorage ─────────────
   const urlParams = new URLSearchParams(window.location.search);
   const id = urlParams.get('id') || sessionStorage.getItem('interviewId');
 
   if (!id) {
-    showToast('ID pelamar tidak ditemukan!', 'error');
-    setTimeout(() => { window.location.href = 'admin.html'; }, 2000);
+    redirectWithMessage('Halaman ini hanya bisa dibuka melalui panel admin.', 'admin.html');
     return;
   }
 
-  // Set tanggal default hari ini
+  // ── 3. Set tanggal default hari ini ─────────────────────
   const todayEl = document.getElementById('tanggalInterview');
   if (todayEl) todayEl.value = new Date().toISOString().split('T')[0];
 
-  // Load data
+  // ── 4. Load data pelamar ─────────────────────────────────
   await loadData(id);
 
-  // Setup form submit
+  // ── 5. Setup form submit ─────────────────────────────────
   document.getElementById('interviewForm')
     ?.addEventListener('submit', handleSubmitInterview);
 });
+
+// ============================================================
+// REDIRECT DENGAN PESAN — Tampilkan pesan dulu, baru redirect
+// ============================================================
+function redirectWithMessage(pesan, tujuan) {
+  // Render halaman pengarah sederhana agar pesan terbaca
+  document.body.innerHTML = `
+    <div style="
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+      font-family: 'Poppins', sans-serif;
+      background: var(--gray-50, #f9f9f9);
+      text-align: center;
+    ">
+      <div style="
+        background: #fff;
+        border-radius: 16px;
+        padding: 32px 28px;
+        max-width: 360px;
+        width: 100%;
+        box-shadow: 0 4px 24px rgba(0,0,0,0.08);
+      ">
+        <div style="font-size: 40px; margin-bottom: 16px;">🔒</div>
+        <div style="font-size: 15px; font-weight: 700; color: #1a1a1a; margin-bottom: 8px;">
+          Akses Tidak Valid
+        </div>
+        <div style="font-size: 13px; color: #888; margin-bottom: 24px; line-height: 1.6;">
+          ${pesan}
+        </div>
+        <div style="font-size: 12px; color: #bbb;">
+          Mengalihkan ke halaman login...
+        </div>
+        <div style="
+          margin-top: 16px;
+          height: 4px;
+          background: #f0f0f0;
+          border-radius: 2px;
+          overflow: hidden;
+        ">
+          <div id="redirectBar" style="
+            height: 100%;
+            width: 0%;
+            background: #4f46e5;
+            border-radius: 2px;
+            transition: width 3s linear;
+          "></div>
+        </div>
+      </div>
+    </div>
+  `;
+
+  // Animasi progress bar
+  requestAnimationFrame(() => {
+    requestAnimationFrame(() => {
+      const bar = document.getElementById('redirectBar');
+      if (bar) bar.style.width = '100%';
+    });
+  });
+
+  setTimeout(() => { window.location.href = tujuan; }, 3000);
+}
 
 // ============================================================
 // LOAD DATA PELAMAR & INTERVIEW
