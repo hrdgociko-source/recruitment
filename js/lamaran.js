@@ -5,7 +5,9 @@
 let currentId        = null;
 let selectedFileKTP    = null;
 let selectedFileSelfie = null;
-let nomorWA          = '6285774455679';
+let nomorWA            = '6285774455679';
+let usiaMin            = 20;   // fallback default
+let usiaMax            = 30;   // fallback default
 
 // ============================================================
 // INIT
@@ -14,8 +16,12 @@ document.addEventListener('DOMContentLoaded', async () => {
   // Ambil nomor WA dari konfigurasi
   try {
     const config = await apiGet({ action: 'getConfig' });
-    if (config.status === 'success' && config.data.NOMOR_WA_REKRUTMEN) {
-      nomorWA = config.data.NOMOR_WA_REKRUTMEN;
+    if (config.status === 'success') {
+      if (config.data.NOMOR_WA_REKRUTMEN) {
+        nomorWA = config.data.NOMOR_WA_REKRUTMEN;
+      }
+      if (config.data.USIA_MIN) usiaMin = parseInt(config.data.USIA_MIN);
+      if (config.data.USIA_MAX) usiaMax = parseInt(config.data.USIA_MAX);
     }
   } catch (e) {
     console.log('Config tidak terbaca, pakai default WA.');
@@ -120,8 +126,8 @@ async function handleSubmitLamaran(e) {
   if (!namaPanggilan) {
     showToast('Nama panggilan wajib diisi!', 'error'); return;
   }
-  if (!usia || usia < 20 || usia > 30) {
-    showToast('Usia harus antara 20 – 30 tahun!', 'warning'); return;
+  if (!usia || usia < usiaMin || usia > usiaMax) {
+    showToast(`Usia harus antara ${usiaMin} – ${usiaMax} tahun!`, 'warning'); return;
   }
   if (!noWhatsapp) {
     showToast('No. WhatsApp wajib diisi!', 'error'); return;
